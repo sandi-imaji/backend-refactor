@@ -3,7 +3,7 @@ from sqlmodel import SQLModel, create_engine, Session
 
 from app.database.orm import Dataset,ModelML
 # Gunakan path absolut yang lebih aman
-DATABASE_URL = "sqlite:///./app/data.db"
+DATABASE_URL = "sqlite:///./storages/rtdb/data.db"
 
 # Buat engine global
 engine = create_engine(DATABASE_URL, echo=False)

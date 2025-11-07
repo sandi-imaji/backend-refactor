@@ -25,7 +25,7 @@ class Dataset(SQLModel, table=True):
   interval: int   # minutes
   preprocessing: Optional[PreprocessingSchema] = Field(default=None, sa_column=Column(JSON))
   is_valid:bool = Field(sa_column=Column(Boolean),default=False)
-  meta:Optional[MetaDataset] = Field(default=None,sa_column=Column(JSON))
+  meta:Optional[MetaDataset] = Field(default={},sa_column=Column(JSON))
   # One-to-many ke ModelML
   models: List["ModelML"] = Relationship(
     back_populates="dataset",
@@ -101,7 +101,7 @@ class Dataset(SQLModel, table=True):
     if to_response:
       return [
         DatasetResponseSchema(
-          task_type=row.task_type,
+          task_type=row.task_type.name,
           names=row.name,
           description = row.description,
           features=row.features,
@@ -109,7 +109,7 @@ class Dataset(SQLModel, table=True):
           start_date=row.start_date,
           end_date=row.end_date,
           interval=row.interval,
-          status=row.status,
+          status=row.status.name,
           is_valid=row.is_valid,
           top_model=row.top_model
         )

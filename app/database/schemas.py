@@ -77,6 +77,13 @@ class TaskType(Enum):
       return data[self.name]
   
   def __str__(self): return self.name
+  
+  @property
+  def base(self) -> str: return self.name.replace("Dummy","")
+
+
+
+
 
 
 
@@ -104,6 +111,8 @@ class DatasetRequestSchema(BaseModel):
   time_start:str = "00:00:00"
   time_end:str = "23:59:00"
   interval:int = 0
+
+  def tt(self): return TaskType.from_str(self.task_type)
 
 class PreprocessingSchema(BaseModel):
   missing_values:dict

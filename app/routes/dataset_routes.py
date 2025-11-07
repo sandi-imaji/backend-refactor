@@ -3,9 +3,9 @@ from app.database.db import get_session
 from sqlmodel import Session
 from app.database.orm import Dataset
 from app.database.schemas import DatasetRequestSchema,TaskType,DatasetResponseSchema
-from app.logger import Logger
 from app.routes import dataset
 from app.pull import pulling
+from app.dummy import create_dummy
 
 datasetRouter = APIRouter()
 
@@ -35,9 +35,10 @@ async def clean_task_type_req(task_type:str,db:Session = Depends(get_session)):
 @datasetRouter.post(f"/dataset",response_model=DatasetResponseSchema)
 async def post_dataset_req(background_task:BackgroundTasks,payload: DatasetRequestSchema,db:Session = Depends(get_session)):
   try:
-    q = dataset.create_dataset(payload)
+    tt = payload.tt()
+    q = create_dummy(payload) if tt.is_dummies() else dataset.create_dataset(payload)
     q.save(db)
-    background_task.add_task(pulling,dataset_name=q.name)
+    if not tt.is_dummies(): background_task.add_task(pulling,dataset_name=q.name)
     return q.to_response()
   except Exception as e: raise HTTPException(status_code=500,detail=str(e))
 

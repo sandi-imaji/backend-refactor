@@ -4,14 +4,19 @@ from app.database.orm import Dataset
 from app.config import Config
 import os,uuid,shutil,pandas as pd,numpy as np
 from typing import Optional
+from app.helpers import init_storages_dataset
 
 TAGNAME = pd.read_csv("tagname.csv")
 
-def init_storages(name):
-  path = Config.dir/"storages"/name
-  os.makedirs(path,exist_ok=True)
-  os.makedirs(path/"logs",exist_ok=True)
-  os.makedirs(path/"top_model",exist_ok=True)
+
+def check_integrity_dataset(dataset:Dataset):
+  if not dataset: raise HTTPException(status_code=404,detail="Dataset is not found!")
+  if not dataset.is_valid: raise HTTPException(status_code=500,detail="Dataset is not valid")
+  if not dataset.meta: return HTTPException(status_code=404,detail="dataset is haven't meta!")
+  path = Config.dir/"storages"/dataset.name
+  if not os.path.exists(path): raise HTTPException(status_code=404,detail=f"Path is not found : {path}")
+  if not os.path.exists(path/"data.csv"): raise HTTPException(status_code=404,detail="Dataframe is not found!")
+
 
 def check_create_dataset(payload:DatasetRequestSchema):
   if not isinstance(payload.features,(list,tuple)): raise HTTPException(status_code=404,detail="features should list or tuple")
@@ -27,10 +32,9 @@ def check_create_dataset(payload:DatasetRequestSchema):
       if not str(payload.target).isdigit(): raise HTTPException(status_code=500,detail ="")
 
 def create_dataset(payload:DatasetRequestSchema):
-  payload.task_type = TaskType.from_str(payload.task_type)
-  print(payload)
   check_create_dataset(payload) 
   name = f"{payload.task_type}-{str(uuid.uuid4())[:8]}"
+  init_storages_dataset(name)
   return Dataset(
     name = name,
     is_valid = False,
@@ -42,6 +46,7 @@ def clean_all_datasets(datasets,db)->dict:
   if not datasets: raise HTTPException(status_code=500,detail="Dataset udah dihapus")
   for d in datasets:
     filepath = Config.dir/"storages"/d.name
+    print(filepath)
     if os.path.exists(filepath): shutil.rmtree(filepath)
     db.delete(d)
     db.commit()
@@ -100,5 +105,6 @@ def get_mapping():
   return data
 
 def get_tagname(row_id:int): return {"tagname":get_mapping(row_id)}
+
 
 

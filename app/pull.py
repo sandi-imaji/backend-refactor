@@ -237,12 +237,13 @@ def pulling(dataset_name:str):
 
     df["dt"] = pd.to_datetime(df["dt"])
 
+    n_rows,n_cols = df.shape
     dataset.meta = MetaDataset(
       created_at = datetime.now().isoformat(),
       created_by = "Anonymous",
       size_of = df.memory_usage().sum(),
-      n_rows = len(df),
-      n_cols = len(df.columns),
+      n_rows = n_rows,
+      n_cols = n_cols,
       missing_values=df.isna().sum().sum().item(),
       is_outlier = False, random_seed = 4,
       columns = df.columns.tolist(),notes = "", train_size = 0.8,
@@ -269,17 +270,17 @@ def pulling(dataset_name:str):
 
 def pull_real_data(columns:List[str],start_date:str,end_date:str,time_start:str,time_end:str,logger=None) -> pd.DataFrame:
   # Parse and validate dates
-  fmt = "%Y%m%d"
+  from app.helpers import FMT_DT
   try:
-    start_date_dt = datetime.strptime(start_date, fmt)
-    end_date_dt = datetime.strptime(end_date, fmt)
+    start_date_dt = datetime.strptime(start_date, FMT_DT)
+    end_date_dt = datetime.strptime(end_date, FMT_DT)
   except ValueError as e: raise ValueError(f"Invalid date format. Expected YYYYMMDD: {str(e)}")
   
   if start_date_dt > end_date_dt: raise ValueError("Start date cannot be after end date")
   
   # Generate date range
   delta_days = (end_date_dt - start_date_dt).days
-  dates = [(start_date_dt + timedelta(days=i)).strftime(fmt) for i in range(delta_days + 1)]
+  dates = [(start_date_dt + timedelta(days=i)).strftime(FMT_DT) for i in range(delta_days + 1)]
   
   if logger: logger.info(f"Pulling data from {start_date} to {end_date} ({len(dates)} days)")
   
