@@ -2,12 +2,11 @@ from fastapi import HTTPException
 from app.database.schemas import DatasetResponseSchema,DatasetRequestSchema, StatusProcess,TaskType
 from app.database.orm import Dataset
 from app.config import Config
-import os,uuid,shutil,pandas as pd,numpy as np
+import os,uuid,shutil,pandas as pd
 from typing import Optional
 from app.helpers import init_storages_dataset
 
 TAGNAME = pd.read_csv("tagname.csv")
-
 
 def check_integrity_dataset(dataset:Dataset):
   if not dataset: raise HTTPException(status_code=404,detail="Dataset is not found!")
@@ -16,7 +15,6 @@ def check_integrity_dataset(dataset:Dataset):
   path = Config.dir/"storages"/dataset.name
   if not os.path.exists(path): raise HTTPException(status_code=404,detail=f"Path is not found : {path}")
   if not os.path.exists(path/"data.csv"): raise HTTPException(status_code=404,detail="Dataframe is not found!")
-
 
 def check_create_dataset(payload:DatasetRequestSchema):
   if not isinstance(payload.features,(list,tuple)): raise HTTPException(status_code=404,detail="features should list or tuple")

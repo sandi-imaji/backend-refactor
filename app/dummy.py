@@ -12,10 +12,20 @@ INDEX_DATASET_DUMMY : dict = {
   "Regression" : ["glass","iris","poker","questions","satellite"],
   "Clustering" : ["facebook","ipl","jewellery","migration","perfume"],
   "Anomaly" : ["anomaly"],
-  "TimeSeries": []
+  "TimeSeries": [""]
 }
 
-def generate_dataset_dummy(idx): return get_data(idx,verbose=False)
+def generate_range_dt(n:int):
+  end_date = pd.Timestamp.today().normalize()
+  start_date = end_date - pd.Timedelta(days=n-1)
+  date_range = pd.date_range(start=start_date, end=end_date, freq='D')
+  return date_range
+
+def generate_dataset_dummy_ts():
+  from statsmodels.datasets import get_rdataset
+  data = get_rdataset("AirPassengers").data[["value"]]
+  data["dt"] = generate_range_dt(len(data))
+  return data
 
 def create_dummy(payload:DatasetRequestSchema) -> Dataset:
   all_index = get_data("index",verbose=False)
@@ -30,6 +40,7 @@ def create_dummy(payload:DatasetRequestSchema) -> Dataset:
     features = [col for col in columns if col != target]
     payload.target = target
   else: features = columns
+  df["dt"] = generate_range_dt(len(df))
   path = f"storages/{name}/data.csv"
   df.to_csv(Config.dir/path,index=False)
   n_rows,n_cols = df.shape
@@ -54,4 +65,6 @@ def create_dummy(payload:DatasetRequestSchema) -> Dataset:
     **payload.model_dump()
   )
 
-if __name__ == "__main__":pass
+if __name__ == "__main__":
+  print(generate_dataset_dummy_ts())
+

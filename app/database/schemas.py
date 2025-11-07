@@ -36,6 +36,17 @@ class TaskType(Enum):
 
   @classmethod
   def tolist(cls): return list(cls.__members__.keys())
+
+  @classmethod
+  def dummies(cls):
+    lists = list(cls.__members__.values())
+    return [d for d in lists if "Dummy" in str(d)]
+
+  @classmethod
+  def not_dummies(cls):
+    lists = list(cls.__members__.values())
+    return [d for d in lists if "Dummy" not in str(d)]
+
   def is_classification(self): return self in [TaskType.Classification,TaskType.ClassificationDummy]
   def is_regression(self): return self in [TaskType.Regression,TaskType.RegressionDummy]
   def is_clustering(self): return self in [TaskType.Clustering,TaskType.ClusteringDummy]
@@ -161,4 +172,6 @@ class ViewModels(BaseModel):
   description:str
   path:str
 
+
+if __name__ == "__main__":pass
 
