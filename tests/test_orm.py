@@ -45,7 +45,6 @@ class TestDatasetDummy(unittest.TestCase):
         print(f"Dataset ERROR : {res.text}!")
 
 
-
 if __name__ == "__main__":
   unittest.main()
 

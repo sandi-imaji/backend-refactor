@@ -8,7 +8,7 @@ from app.helpers import init_storages_dataset
 
 TAGNAME = pd.read_csv("tagname.csv")
 
-def check_integrity_dataset(dataset:Dataset):
+def check_integrity_dataset(dataset:Optional[Dataset]):
   if not dataset: raise HTTPException(status_code=404,detail="Dataset is not found!")
   if not dataset.is_valid: raise HTTPException(status_code=500,detail="Dataset is not valid")
   if not dataset.meta: return HTTPException(status_code=404,detail="dataset is haven't meta!")
@@ -102,7 +102,7 @@ def get_mapping():
   for _,v in TAGNAME.iterrows(): data[v['row_id']] = v.to_dict()
   return data
 
-def get_tagname(row_id:int): return {"tagname":get_mapping(row_id)}
+def get_tagname(row_id:int): return {"tagname":get_mapping().get(row_id,"")}
 
 
 

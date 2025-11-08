@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from typing import Any,Optional,List,Union,Dict
 from enum import Enum,auto
 from pandas import read_csv
+import pandas as pd
 
 
 class StatusProcess(Enum):
@@ -93,11 +94,6 @@ class TaskType(Enum):
   def base(self) -> str: return self.name.replace("Dummy","")
 
 
-
-
-
-
-
 class MetaDataset(BaseModel):
   created_by:str
   created_at:str
@@ -115,7 +111,7 @@ class MetaDataset(BaseModel):
 class DatasetRequestSchema(BaseModel):
   description:str = ""
   task_type:str
-  features:List[str]
+  features:List
   target:Union[str,int]
   start_date:str
   end_date:str
@@ -171,6 +167,46 @@ class ViewModels(BaseModel):
   algorithm:str
   description:str
   path:str
+
+class InferenceRequestSchema(BaseModel):
+  dataset_name:str
+  X:Any
+
+class InitiateRequestSchema(BaseModel):
+  description:str
+  task_type:str
+  features:List
+  target:Union[str,int]
+  start_date:str
+  end_date:str
+  n_models:int
+
+class InitiateResponseSchema(BaseModel):
+  success:bool
+  msg:str
+
+class SupervisedResponseSchema(BaseModel):
+  target_name:str
+  value_pred:float
+  value_actual:float
+  timestamps:str
+
+class UnsupervisedResponseSchema(BaseModel):
+  timestamps:str
+  result:dict
+
+class TimeSeriesResponseSchema(BaseModel):
+  target_name:str
+  result:dict
+  timestamps:str
+
+
+
+
+
+
+
+
 
 
 if __name__ == "__main__":pass
